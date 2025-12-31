@@ -560,7 +560,7 @@ export default function VideoPlayer({ src, type, poster, className }: VideoPlaye
             {/* Controls Bar */}
             <div
                 className={cn(
-                    "absolute bottom-0 left-0 right-0 p-4 transition-all duration-300 z-40 flex items-center gap-4",
+                    "absolute bottom-0 left-0 right-0 p-2 sm:p-4 transition-all duration-300 z-40 flex items-center gap-2 sm:gap-4",
                     showControls ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
                 )}
                 onClick={(e) => e.stopPropagation()}
@@ -568,18 +568,18 @@ export default function VideoPlayer({ src, type, poster, className }: VideoPlaye
                 {/* Play/Pause */}
                 <button
                     onClick={togglePlay}
-                    className="p-2 hover:bg-white/20 rounded-full text-white transition-colors"
+                    className="p-1.5 sm:p-2 hover:bg-white/20 rounded-full text-white transition-colors flex-shrink-0"
                     title={isPlaying ? "Pause (Space)" : "Play (Space)"}
                 >
-                    {isPlaying ? <Pause className="w-6 h-6 fill-current" /> : <Play className="w-6 h-6 fill-current" />}
+                    {isPlaying ? <Pause className="w-5 h-5 sm:w-6 sm:h-6 fill-current" /> : <Play className="w-5 h-5 sm:w-6 sm:h-6 fill-current" />}
                 </button>
 
                 {/* Volume */}
-                <div className="flex items-center gap-2 group/vol">
-                    <button onClick={toggleMute} className="p-2 hover:bg-white/20 rounded-full text-white transition-colors" title="Mute/Unmute">
-                        {isMuted || volume === 0 ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+                <div className="flex items-center gap-2 group/vol flex-shrink-0">
+                    <button onClick={toggleMute} className="p-1.5 sm:p-2 hover:bg-white/20 rounded-full text-white transition-colors" title="Mute/Unmute">
+                        {isMuted || volume === 0 ? <VolumeX className="w-4 h-4 sm:w-5 sm:h-5" /> : <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />}
                     </button>
-                    <div className="w-0 overflow-hidden group-hover/vol:w-24 transition-all duration-300">
+                    <div className="w-0 overflow-hidden group-hover/vol:w-16 sm:group-hover/vol:w-24 transition-all duration-300">
                         <input
                             type="range"
                             min="0"
@@ -587,7 +587,7 @@ export default function VideoPlayer({ src, type, poster, className }: VideoPlaye
                             step="0.05"
                             value={isMuted ? 0 : volume}
                             onChange={handleVolumeChange}
-                            className="w-20 h-1 bg-white/30 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                            className="w-14 sm:w-20 h-1 bg-white/30 rounded-lg appearance-none cursor-pointer accent-blue-500"
                         />
                     </div>
                 </div>
@@ -596,35 +596,35 @@ export default function VideoPlayer({ src, type, poster, className }: VideoPlaye
                 <button
                     onClick={jumpToLive}
                     className={cn(
-                        "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ml-2",
+                        "flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-all ml-1 sm:ml-2 flex-shrink-0",
                         isLiveEdge
                             ? "text-red-500 cursor-default select-none"
                             : "bg-white/20 hover:bg-white/30 text-gray-200 cursor-pointer"
                     )}
                     title="Jump to Live"
                 >
-                    <div className={cn("w-2 h-2 rounded-full", isLiveEdge ? "bg-red-500 animate-pulse" : "bg-gray-400")} />
+                    <div className={cn("w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full", isLiveEdge ? "bg-red-500 animate-pulse" : "bg-gray-400")} />
                     {isLiveEdge ? 'LIVE' : 'GO LIVE'}
                 </button>
 
-                {/* Spacer */}
-                <div className="flex-1" />
+                {/* Spacer (Absorbs extra space) */}
+                <div className="flex-1 min-w-0" />
 
                 {/* Quality Selector */}
                 {qualities.length > 0 && (
-                    <div className="relative">
+                    <div className="relative flex-shrink-0">
                         <button
                             onClick={() => setShowQualityMenu(!showQualityMenu)}
-                            className="flex items-center gap-2 px-3 py-2 hover:bg-white/20 rounded-lg text-white transition-colors text-sm font-medium"
+                            className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 hover:bg-white/20 rounded-lg text-white transition-colors text-xs sm:text-sm font-medium whitespace-nowrap"
                             title="Quality Settings"
                         >
-                            <Settings className="w-4 h-4" />
+                            <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                             <span>{currentQuality === 'auto' ? 'Auto' : `${qualities.find(q => q.id === currentQuality)?.height}p`}</span>
                         </button>
 
                         {/* Quality Menu Dropdown */}
                         {showQualityMenu && (
-                            <div className="absolute bottom-full right-0 mb-2 w-40 bg-[#191f27] border border-white/10 rounded-xl shadow-xl overflow-hidden py-1 z-50 animate-in fade-in slide-in-from-bottom-2">
+                            <div className="absolute bottom-full right-0 mb-2 w-32 sm:w-40 bg-[#191f27] border border-white/10 rounded-xl shadow-xl overflow-hidden py-1 z-50 animate-in fade-in slide-in-from-bottom-2">
                                 <button
                                     onClick={() => handleQualityChange('auto')}
                                     className={cn(
@@ -633,7 +633,7 @@ export default function VideoPlayer({ src, type, poster, className }: VideoPlaye
                                     )}
                                 >
                                     <Radio className="w-3 h-3" />
-                                    <span>Auto (Recommended)</span>
+                                    <span>Auto</span>
                                 </button>
                                 <div className="h-px bg-white/10 my-1 mx-2" />
                                 {qualities.map(q => (
@@ -657,10 +657,10 @@ export default function VideoPlayer({ src, type, poster, className }: VideoPlaye
                 {/* Fullscreen */}
                 <button
                     onClick={toggleFullscreen}
-                    className="p-2 hover:bg-white/20 rounded-full text-white transition-colors"
+                    className="p-1.5 sm:p-2 hover:bg-white/20 rounded-full text-white transition-colors flex-shrink-0"
                     title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
                 >
-                    {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
+                    {isFullscreen ? <Minimize className="w-5 h-5 sm:w-5 sm:h-5" /> : <Maximize className="w-5 h-5 sm:w-5 sm:h-5" />}
                 </button>
             </div>
 
