@@ -75,12 +75,15 @@ export default function VideoPlayer({ src, type, poster, className }: VideoPlaye
     // --- Control Visibility Logic ---
     const handleMouseMove = useCallback(() => {
         if (!isMountedRef.current) return;
+        // Disable mousemove triggering on mobile to prevent accidental showing
+        if (window.innerWidth < 768) return;
+
         setShowControls(true);
         if (controlTimeoutRef.current) clearTimeout(controlTimeoutRef.current);
         if (isPlaying) {
             controlTimeoutRef.current = setTimeout(() => {
                 if (isMountedRef.current) setShowControls(false);
-            }, 3000);
+            }, 5000);
         }
     }, [isPlaying]);
 
@@ -174,7 +177,7 @@ export default function VideoPlayer({ src, type, poster, className }: VideoPlaye
                 autoplay: true,
                 controls: false, // We use custom controls
                 responsive: true,
-                fluid: true,
+                fill: true, // Use fill instead of fluid to fit container exactly (fixes fullscreen padding)
                 poster: poster,
                 sources: [{
                     src: src,
@@ -204,7 +207,7 @@ export default function VideoPlayer({ src, type, poster, className }: VideoPlaye
                 if (controlTimeoutRef.current) clearTimeout(controlTimeoutRef.current);
                 controlTimeoutRef.current = setTimeout(() => {
                     if (isMountedRef.current) setShowControls(false);
-                }, 3000);
+                }, 5000);
             });
 
             player.on('pause', () => {
@@ -382,19 +385,61 @@ export default function VideoPlayer({ src, type, poster, className }: VideoPlaye
 
     // --- Helper for Click ---
     const handleContainerClick = () => {
-        togglePlay();
+        const isMobile = window.innerWidth < 768;
+
+        if (isMobile) {
+            // Mobile: Toggle Controls visibility
+            if (showControls) {
+                // If showing, hide immediately
+                setShowControls(false);
+                if (controlTimeoutRef.current) clearTimeout(controlTimeoutRef.current);
+            } else {
+                // If hidden, show and set 8s timer
+                setShowControls(true);
+                if (controlTimeoutRef.current) clearTimeout(controlTimeoutRef.current);
+                if (isPlaying) {
+                    controlTimeoutRef.current = setTimeout(() => {
+                        if (isMountedRef.current) setShowControls(false);
+                    }, 5000);
+                }
+            }
+        } else {
+            // Desktop: Toggle Play/Pause
+            togglePlay();
+        }
     };
 
     const toggleFullscreen = async () => {
         if (!document.fullscreenElement) {
             try {
                 await containerRef.current?.requestFullscreen();
+                // Attempt to lock orientation to landscape on mobile
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                if (screen.orientation && (screen.orientation as any).lock) {
+                    try {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        await (screen.orientation as any).lock('landscape');
+                    } catch (e) {
+                        // Ignore errors (not supported on desktop/some devices)
+                        console.log("Orientation lock not supported or failed:", e);
+                    }
+                }
             } catch (err) {
                 console.error("Error attempting to enable fullscreen:", err);
             }
         } else {
             if (document.exitFullscreen) {
                 await document.exitFullscreen();
+                // Unlock orientation
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                if (screen.orientation && (screen.orientation as any).unlock) {
+                    try {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        (screen.orientation as any).unlock();
+                    } catch (e) {
+                        // Ignore
+                    }
+                }
             }
         }
     };
@@ -484,12 +529,22 @@ export default function VideoPlayer({ src, type, poster, className }: VideoPlaye
         }
     };
 
+    // --- Helper for Mouse Leave ---
+    const handleMouseLeave = useCallback(() => {
+        // Disable mouse leave on mobile to prevent premature hiding
+        if (window.innerWidth < 768) return;
+
+        if (isPlaying) {
+            setShowControls(false);
+        }
+    }, [isPlaying]);
+
     return (
         <div
             ref={containerRef}
-            className={cn(className, "relative group overflow-hidden bg-black rounded-xl shadow-2xl")}
+            className={cn(className, "relative group overflow-hidden bg-black shadow-2xl", !isFullscreen && "rounded-xl")}
             onMouseMove={handleMouseMove}
-            onMouseLeave={() => isPlaying && setShowControls(false)}
+            onMouseLeave={handleMouseLeave}
             onClick={handleContainerClick}
         >
             <div data-vjs-player className="w-full h-full pointer-events-none">
@@ -628,8 +683,14 @@ export default function VideoPlayer({ src, type, poster, className }: VideoPlaye
 
             <style jsx global>{`
                 /* Hide native Video.js controls */
+                .video-js {
+                    width: 100%;
+                    height: 100%;
+                }
                 .video-js .vjs-tech {
                     object-fit: contain;
+                    width: 100%;
+                    height: 100%;
                 }
                 .vjs-big-play-button {
                     display: none !important;
