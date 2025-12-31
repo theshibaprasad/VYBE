@@ -483,12 +483,9 @@ export default function VideoPlayer({ src, type, poster, className }: VideoPlaye
         if (qualities.length === 0) return;
 
         if (settings.dataSaver) {
-            // Find highest quality that is <= 480p (Good balance for data saver)
-            // Qualities are sorted ASC (low to high)
-            // 360, 480, 720, 1080
-            // We want 480. 
-            // Reversed find or filter + pop would work. 
-            const saverQuality = [...qualities].reverse().find(q => q.height <= 480) || qualities[0];
+            // Find lowest available quality for maximum data saving
+            // Qualities are sorted ASC (low to high), so index 0 is the lowest.
+            const saverQuality = qualities[0];
 
             if (saverQuality && currentQuality !== saverQuality.id) {
                 console.log(`[Data Saver] Enforcing quality: ${saverQuality.height}p`);

@@ -36,7 +36,7 @@ export default function SettingsPage() {
                             <div className="space-y-1">
                                 <h3 className="text-base font-bold text-white">Data Saver Mode</h3>
                                 <p className="text-sm text-muted-foreground">
-                                    Automatically play channels at lower quality (480p/360p) to save bandwidth.
+                                    Automatically play channels at the lowest available quality to save bandwidth.
                                 </p>
                             </div>
                             <label className="relative inline-flex items-center cursor-pointer">
